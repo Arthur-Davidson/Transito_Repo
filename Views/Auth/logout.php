@@ -1,7 +1,8 @@
 <?php
-require_once __DIR__ . '/../../Config/auth.php';
 
-Auth::start();
+require_once __DIR__ . '/../../config/auth.php';
+
+Auth::iniciar();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -9,9 +10,9 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit('Usa el botón Cerrar sesión del menú.');
 }
 
-if (!Auth::validateCsrf()) {
+if (!Auth::validarToken()) {
     http_response_code(403);
     exit('Formulario expirado. Regresa y recarga la página.');
 }
 
-Auth::logout();
+Auth::cerrarSesion();

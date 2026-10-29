@@ -7,6 +7,3 @@ define('DB_NAME', 'ControlVehicular');
 define('DB_CHARSET', 'utf8mb4');
 
 define('BASE_URL', '/ControlVehicular/');
-
-
-define('ADMIN_INVITE_CODE', '1234');
