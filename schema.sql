@@ -1,4 +1,4 @@
-CREATE DATABASE ControlVehicular;
+CREATE DATABASE IF NOT EXISTS ControlVehicular;
 USE ControlVehicular;
 
 CREATE TABLE Usuarios (
@@ -20,8 +20,8 @@ CREATE TABLE Propietarios (
 
 CREATE TABLE Vehiculos (
     IdVehiculo INT AUTO_INCREMENT PRIMARY KEY,
-    Matricula VARCHAR(20) NOT NULL,
-    NumeroSerie VARCHAR(50) NOT NULL,
+    Matricula VARCHAR(20) NOT NULL UNIQUE,
+    NumeroSerie VARCHAR(50) NOT NULL UNIQUE,
     Marca VARCHAR(50) NOT NULL,
     Modelo VARCHAR(50) NOT NULL,
     Anio INT NOT NULL,

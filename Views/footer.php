@@ -13,14 +13,20 @@
                 administración del sistema.
             </p>
 
+            <!-- Agregar aquí el los datos del proyecto. -->
         </div>
 
     </div>
 
     <div class="container pie-creditos">
-        <small>&copy; <?= date('Y') ?> Control Vehicular.</small>
+        <small>
+            &copy; <?= date('Y') ?> Control Vehicular.
+            copyright
+        </small>
     </div>
 </footer>
+
+<script src="<?= BASE_URL ?>Views/assets/navigation.js"></script>
 
 </body>
 </html>

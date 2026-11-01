@@ -1,40 +1,40 @@
 <?php
+
 require_once __DIR__ . '/../../Config/auth.php';
 require_once __DIR__ . '/../../Models/authentication.php';
 
-Auth::guestOnly();
+Auth::soloInvitados();
 
 $error = '';
-$name = '';
-$email = '';
-$role = Authentication::ROLE_USER;
+$nombre = '';
+$correo = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim(postValue('name'));
-    $email = strtolower(trim(postValue('email')));
-    $password = postValue('password');
-    $passwordConfirm = postValue('password_confirm');
-    $role = postValue('role');
-    $inviteCode = postValue('invite_code');
+    $nombre = trim(datoPost('nombre'));
+    $correo = strtolower(trim(datoPost('email')));
+    $password = datoPost('password');
+    $confirmacion = datoPost('confirmacion');
 
-    if (!Auth::validateCsrf()) {
+    if (!Auth::validarToken()) {
         $error = 'El formulario expiró. Intenta nuevamente.';
     } else {
-        $error = Authentication::validateRegistration(
-            $name,
-            $email,
+        $error = Autenticacion::validarRegistro(
+            $nombre,
+            $correo,
             $password,
-            $passwordConfirm,
-            $role,
-            $inviteCode
+            $confirmacion
         );
 
         if ($error === '') {
             try {
-                $model = new Authentication();
+                $modelo = new Autenticacion();
 
-                if ($model->register($name, $email, $password, $role, $inviteCode)) {
-                    $_SESSION['registration_success'] = true;
+                if ($modelo->registrar(
+                    $nombre,
+                    $correo,
+                    $password
+                )) {
+                    $_SESSION['registro_correcto'] = true;
 
                     header('Location: ' . BASE_URL . 'Views/Auth/login.php');
                     exit;
@@ -42,123 +42,145 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                 $error = 'Este correo ya está registrado.';
             } catch (PDOException $ex) {
-                error_log('Register: ' . $ex->getMessage());
+                error_log('Registro: ' . $ex->getMessage());
                 $error = 'No se pudo crear la cuenta. Intenta más tarde.';
             }
         }
     }
 }
 
-$title = 'Registro';
-include __DIR__ . '/../header.php';
 ?>
+
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Registro | Control Vehicular</title>
+
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+    <link href="<?= BASE_URL ?>Views/assets/auth.css" rel="stylesheet">
+</head>
+<body>
+
+<?php include __DIR__ . '/../navbar.php'; ?>
+
 <main class="container py-5">
-    <h1>Crear cuenta</h1>
-    <p>Completa tus datos para registrarte.</p>
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-6">
+            <div class="card auth-card">
+                <div class="card-body p-4 p-lg-5">
 
-    <?php if ($error !== ''): ?>
-        <p role="alert"><?= escape($error) ?></p>
-    <?php endif; ?>
+                    <h1 class="h3 fw-bold">Crear cuenta</h1>
+                    <p class="text-secondary mb-4">
+                        Completa tus datos para registrarte.
+                    </p>
 
-    <form method="post">
-        <input type="hidden" name="csrf" value="<?= escape(Auth::csrfToken()) ?>">
+                    <?php if ($error !== ''): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?= escapar($error) ?>
+                        </div>
+                    <?php endif; ?>
 
-        <div class="mb-3">
-            <label for="name" class="form-label">Nombre</label>
-            <input
-                id="name"
-                name="name"
-                type="text"
-                class="form-control"
-                maxlength="100"
-                autocomplete="name"
-                value="<?= escape($name) ?>"
-                required
-            >
-        </div>
+                    <form method="post">
+                        <input
+                            type="hidden"
+                            name="csrf"
+                            value="<?= escapar(Auth::token()) ?>"
+                        >
 
-        <div class="mb-3">
-            <label for="email" class="form-label">Correo electrónico</label>
-            <input
-                id="email"
-                name="email"
-                type="email"
-                class="form-control"
-                maxlength="100"
-                autocomplete="email"
-                value="<?= escape($email) ?>"
-                required
-            >
-        </div>
+                        <div class="mb-3">
+                            <label for="nombre" class="form-label">
+                                Nombre
+                            </label>
 
-        <div class="mb-3">
-            <label for="role" class="form-label">Tipo de cuenta</label>
-            <select id="role" name="role" class="form-select" required>
-                <option
-                    value="<?= escape(Authentication::ROLE_USER) ?>"
-                    <?= $role === Authentication::ROLE_USER ? 'selected' : '' ?>
-                >Usuario</option>
-                <option
-                    value="<?= escape(Authentication::ROLE_ADMIN) ?>"
-                    <?= $role === Authentication::ROLE_ADMIN ? 'selected' : '' ?>
-                >Administrador</option>
-            </select>
-        </div>
+                            <input
+                                id="nombre"
+                                name="nombre"
+                                type="text"
+                                class="form-control"
+                                maxlength="100"
+                                autocomplete="name"
+                                value="<?= escapar($nombre) ?>"
+                                required
+                            >
+                        </div>
 
-        <div class="mb-3">
-            <label for="invite_code" class="form-label">
-                Código de invitación de administrador
-            </label>
-            <input
-                id="invite_code"
-                name="invite_code"
-                type="password"
-                class="form-control"
-                autocomplete="off"
-                aria-describedby="inviteCodeHelp"
-            >
-            <div id="inviteCodeHelp" class="form-text">
-                Solo se requiere para crear una cuenta de Administrador.
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                Correo electrónico
+                            </label>
+
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                class="form-control"
+                                maxlength="100"
+                                autocomplete="email"
+                                value="<?= escapar($correo) ?>"
+                                required
+                            >
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                Contraseña
+                            </label>
+
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                class="form-control"
+                                minlength="8"
+                                autocomplete="new-password"
+                                aria-describedby="ayudaPassword"
+                                required
+                            >
+
+                            <div id="ayudaPassword" class="form-text">
+                                Crea una contraseña de al menos 8 caracteres.
+                                Puedes usar espacios, acentos y símbolos.
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="confirmacion" class="form-label">
+                                Confirmar contraseña
+                            </label>
+
+                            <input
+                                id="confirmacion"
+                                name="confirmacion"
+                                type="password"
+                                class="form-control"
+                                minlength="8"
+                                autocomplete="new-password"
+                                required
+                            >
+                        </div>
+
+                        <button class="btn btn-primary w-100" type="submit">
+                            Crear cuenta
+                        </button>
+                    </form>
+
+                    <p class="text-center small text-secondary mt-4 mb-0">
+                        ¿Ya tienes cuenta?
+                        <a href="<?= BASE_URL ?>Views/Auth/login.php">
+                            Inicia sesión
+                        </a>
+                    </p>
+
+                </div>
             </div>
         </div>
-
-        <div class="mb-3">
-            <label for="password" class="form-label">Contraseña</label>
-            <input
-                id="password"
-                name="password"
-                type="password"
-                class="form-control"
-                minlength="8"
-                autocomplete="new-password"
-                aria-describedby="passwordHelp"
-                required
-            >
-            <div id="passwordHelp" class="form-text">
-                Crea una contraseña de al menos 8 caracteres.
-                Puedes usar espacios, acentos y símbolos.
-            </div>
-        </div>
-
-        <div class="mb-4">
-            <label for="password_confirm" class="form-label">Confirmar contraseña</label>
-            <input
-                id="password_confirm"
-                name="password_confirm"
-                type="password"
-                class="form-control"
-                minlength="8"
-                autocomplete="new-password"
-                required
-            >
-        </div>
-
-        <button class="btn btn-primary" type="submit">Crear cuenta</button>
-    </form>
-
-    <p>
-        ¿Ya tienes cuenta?
-        <a href="<?= escape(BASE_URL . 'Views/Auth/login.php') ?>">Inicia sesión</a>
-    </p>
+    </div>
 </main>
+
 <?php include __DIR__ . '/../footer.php'; ?>

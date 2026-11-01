@@ -2,91 +2,73 @@
 
 require_once __DIR__ . '/config.php';
 
-function escape($value)
+function escapar($valor)
 {
-    return htmlspecialchars((string) $value, ENT_QUOTES, 'UTF-8');
+    return htmlspecialchars(
+        (string) $valor,
+        ENT_QUOTES | ENT_SUBSTITUTE,
+        'UTF-8'
+    );
 }
 
-function postValue($key)
+function datoPost($campo)
 {
-    $value = $_POST[$key] ?? '';
-
-    return is_string($value) ? $value : '';
+    return isset($_POST[$campo]) && is_string($_POST[$campo])
+        ? $_POST[$campo]
+        : '';
 }
 
 class Auth
 {
-    public static function start()
+    public static function iniciar()
     {
         if (session_status() === PHP_SESSION_NONE) {
+            ini_set('session.use_strict_mode', '1');
+            ini_set('session.use_only_cookies', '1');
+
+            session_name('controlvehicular_session');
+
+            session_set_cookie_params([
+                'lifetime' => 0,
+                'path' => BASE_URL,
+                'secure' => !empty($_SERVER['HTTPS'])
+                    && $_SERVER['HTTPS'] !== 'off',
+                'httponly' => true,
+                'samesite' => 'Lax'
+            ]);
+
             session_start();
         }
     }
 
-    public static function isLoggedIn()
+    public static function autenticado()
     {
-        self::start();
+        self::iniciar();
 
-        return !empty($_SESSION['user_id']);
+        return isset($_SESSION['user_id']);
     }
 
-    public static function login(array $user)
+    public static function requerirSesion()
     {
-        self::start();
-        session_regenerate_id(true);
-
-        $_SESSION['user_id'] = (int) $user['IdUsuario'];
-        $_SESSION['user_name'] = $user['Nombre'];
-        $_SESSION['user_email'] = $user['Email'];
-        $_SESSION['user_role'] = $user['Rol'];
-    }
-
-    public static function logout()
-    {
-        self::start();
-
-        $_SESSION = [];
-
-        if (ini_get('session.use_cookies')) {
-            $params = session_get_cookie_params();
-            setcookie(
-                session_name(),
-                '',
-                time() - 42000,
-                $params['path'],
-                $params['domain'],
-                $params['secure'],
-                $params['httponly']
-            );
-        }
-
-        session_destroy();
-
-        header('Location: ' . BASE_URL . 'Views/home.php');
-        exit;
-    }
-
-
-    public static function requireLogin()
-    {
-        if (!self::isLoggedIn()) {
+        if (!self::autenticado()) {
             header('Location: ' . BASE_URL . 'Views/Auth/login.php');
             exit;
         }
+
+        header('Cache-Control: no-store');
     }
 
-
-    public static function guestOnly()
+    public static function soloInvitados()
     {
-        if (self::isLoggedIn()) {
+        if (self::autenticado()) {
             header('Location: ' . BASE_URL . 'Views/Auth/dashboard.php');
             exit;
         }
     }
 
-    public static function csrfToken()
+    public static function token()
     {
-        self::start();
+        self::iniciar();
 
         if (empty($_SESSION['csrf'])) {
             $_SESSION['csrf'] = bin2hex(random_bytes(32));
@@ -95,14 +77,46 @@ class Auth
         return $_SESSION['csrf'];
     }
 
-    public static function validateCsrf()
+    public static function validarToken()
     {
-        self::start();
+        self::iniciar();
 
-        $sent = postValue('csrf');
+        return isset($_SESSION['csrf'])
+            && hash_equals($_SESSION['csrf'], datoPost('csrf'));
+    }
 
-        return $sent !== ''
-            && !empty($_SESSION['csrf'])
-            && hash_equals($_SESSION['csrf'], $sent);
+    public static function acceder($usuario)
+    {
+        self::iniciar();
+        session_regenerate_id(true);
+
+        $_SESSION = [
+            'user_id' => (int) $usuario['IdUsuario'],
+            'user_name' => $usuario['Nombre'],
+            'user_email' => $usuario['Email'],
+            'user_role' => $usuario['Rol'],
+            'csrf' => bin2hex(random_bytes(32))
+        ];
+    }
+
+    public static function cerrarSesion()
+    {
+        self::iniciar();
+        $_SESSION = [];
+
+        $cookie = session_get_cookie_params();
+
+        setcookie(session_name(), '', [
+            'expires' => time() - 42000,
+            'path' => $cookie['path'],
+            'secure' => $cookie['secure'],
+            'httponly' => true,
+            'samesite' => 'Lax'
+        ]);
+
+        session_destroy();
+
+        header('Location: ' . BASE_URL . 'Views/Auth/login.php');
+        exit;
     }
 }

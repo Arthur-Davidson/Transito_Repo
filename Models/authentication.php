@@ -2,11 +2,8 @@
 
 require_once __DIR__ . '/../Config/database.php';
 
-class Authentication
+class Autenticacion
 {
-    const ROLE_USER = 'Usuario';
-    const ROLE_ADMIN = 'Administrador';
-
     private $db;
 
     public function __construct()
@@ -14,137 +11,102 @@ class Authentication
         $this->db = Database::getInstance();
     }
 
-    public static function isValidEmail($email)
+    public static function correoValido($correo)
     {
-        return strlen($email) <= 100
-            && filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
+        return strlen($correo) <= 100
+            && filter_var($correo, FILTER_VALIDATE_EMAIL) !== false;
     }
 
-    private static function isValidRole($role)
-    {
-        return in_array($role, [self::ROLE_USER, self::ROLE_ADMIN], true);
-    }
-
-    private static function isValidPassword($password)
-    {
-        return mb_check_encoding($password, 'UTF-8')
-            && strpos($password, "\0") === false
-            && mb_strlen($password, 'UTF-8') >= 8
-            && strlen($password) <= 72;
-    }
-
-    private static function isValidInviteCode($code)
-    {
-        return ADMIN_INVITE_CODE !== ''
-            && $code !== ''
-            && hash_equals(ADMIN_INVITE_CODE, $code);
-    }
-
- 
-    public static function validateRegistration(
-        $name,
-        $email,
+    public static function validarRegistro(
+        $nombre,
+        $correo,
         $password,
-        $passwordConfirm,
-        $role = self::ROLE_USER,
-        $inviteCode = ''
+        $confirmacion
     ) {
         if (
-            $name === ''
-            || $email === ''
+            $nombre === ''
+            || $correo === ''
             || $password === ''
-            || $passwordConfirm === ''
+            || $confirmacion === ''
         ) {
             return 'Completa todos los campos.';
         }
 
-        if (!self::isValidRole($role)) {
-            return 'Selecciona un rol válido.';
-        }
-
-        // Unicode letters, accents and separators between words.
-        $pattern = "/\A[\p{L}\p{M}]+(?:[ .’'\-][\p{L}\p{M}]+)*\z/u";
+        // Letras Unicode, acentos y separadores entre palabras.
+        $patron = "/\A[\p{L}\p{M}]+(?:[ .’'\-][\p{L}\p{M}]+)*\z/u";
 
         if (
-            !preg_match($pattern, $name)
-            || mb_strlen($name, 'UTF-8') > 100
+            !preg_match($patron, $nombre)
+            || mb_strlen($nombre, 'UTF-8') > 100
         ) {
             return 'Ingresa un nombre válido de hasta 100 caracteres.';
         }
 
-        if (!self::isValidEmail($email)) {
+        if (!self::correoValido($correo)) {
             return 'Ingresa un correo válido de hasta 100 caracteres.';
         }
 
-        if (!self::isValidPassword($password)) {
+        if (
+            !mb_check_encoding($password, 'UTF-8')
+            || strpos($password, "\0") !== false
+            || mb_strlen($password, 'UTF-8') < 8
+            || strlen($password) > 72
+        ) {
             return 'La contraseña necesita al menos 8 caracteres '
                 . 'y no debe superar 72 bytes.';
         }
 
-        if ($password !== $passwordConfirm) {
+        if ($password !== $confirmacion) {
             return 'Las contraseñas no coinciden.';
-        }
-
-        if ($role === self::ROLE_ADMIN && !self::isValidInviteCode($inviteCode)) {
-            return 'El código de invitación de administrador es inválido '
-                . 'o no está configurado.';
         }
 
         return '';
     }
 
- 
-    public function register(
-        $name,
-        $email,
-        $password,
-        $role = self::ROLE_USER,
-        $inviteCode = ''
+    public function registrar(
+        $nombre,
+        $correo,
+        $password
     ) {
-        if (!self::isValidRole($role)) {
-            throw new InvalidArgumentException('El rol seleccionado no es válido.');
-        }
-
-        if (!self::isValidPassword($password)) {
+        if (
+            !mb_check_encoding($password, 'UTF-8')
+            || strpos($password, "\0") !== false
+            || mb_strlen($password, 'UTF-8') < 8
+            || strlen($password) > 72
+        ) {
             throw new InvalidArgumentException(
                 'La contraseña necesita al menos 8 caracteres '
                 . 'y no debe superar 72 bytes.'
             );
         }
 
-        if ($role === self::ROLE_ADMIN && !self::isValidInviteCode($inviteCode)) {
-            throw new InvalidArgumentException(
-                'El código de invitación de administrador es inválido '
-                . 'o no está configurado.'
-            );
-        }
-
-        $query = $this->db->prepare(
+        $consulta = $this->db->prepare(
             'SELECT IdUsuario FROM Usuarios
              WHERE Email = :email LIMIT 1'
         );
 
-        $query->execute(['email' => $email]);
+        $consulta->execute(['email' => $correo]);
 
-        if ($query->fetch()) {
+        if ($consulta->fetch()) {
             return false;
         }
 
-        $query = $this->db->prepare(
+        $consulta = $this->db->prepare(
             'INSERT INTO Usuarios (Nombre, Email, Password, Rol)
-             VALUES (:name, :email, :password, :role)'
+             VALUES (:nombre, :email, :password, :rol)'
         );
 
         try {
-            $query->execute([
-                'name' => $name,
-                'email' => $email,
+            $consulta->execute([
+                'nombre' => $nombre,
+                'email' => $correo,
                 'password' => password_hash($password, PASSWORD_BCRYPT),
-                'role' => $role
+                'rol' => 'Usuario'
             ]);
 
             return true;
         } catch (PDOException $error) {
+            // Correo duplicado: protegido también por índice UNIQUE.
             if (($error->errorInfo[1] ?? null) === 1062) {
                 return false;
             }
@@ -153,27 +115,26 @@ class Authentication
         }
     }
 
-
-    public function verify($email, $password)
+    public function verificar($correo, $password)
     {
-        $query = $this->db->prepare(
+        $consulta = $this->db->prepare(
             'SELECT IdUsuario, Nombre, Email, Password, Rol
              FROM Usuarios WHERE Email = :email LIMIT 2'
         );
 
-        $query->execute(['email' => $email]);
-        $users = $query->fetchAll();
+        $consulta->execute(['email' => $correo]);
+        $usuarios = $consulta->fetchAll();
 
-        if (count($users) !== 1) {
+        if (count($usuarios) !== 1) {
             return false;
         }
 
-        $user = $users[0];
+        $usuario = $usuarios[0];
 
-        if (!password_verify($password, $user['Password'])) {
+        if (!password_verify($password, $usuario['Password'])) {
             return false;
         }
 
-        return $user;
+        return $usuario;
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/config.php';
 
 class Database
@@ -20,8 +19,7 @@ class Database
         try {
             $this->pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            error_log('Database: ' . $e->getMessage());
-            die('Error de conexión a la base de datos.');
+            throw $e;
         }
     }
 
