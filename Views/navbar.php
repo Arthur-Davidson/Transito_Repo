@@ -27,7 +27,7 @@ function enlaceMenu($archivo, $texto, $privado = false) {
 <form action="<?= BASE_URL ?>Views/Auth/logout.php" method="post">
 <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>"><button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button></form>
 <?php else: ?>
-<?php enlaceMenu('Auth/login.php', 'Trabajadores'); ?>
-<a class="btn btn-primary btn-sm" href="<?= BASE_URL ?>Views/Auth/register.php">Registrar trabajador</a>
+<?php enlaceMenu('Auth/login.php', 'Iniciar sesión'); ?>
+<a class="btn btn-primary btn-sm" href="<?= BASE_URL ?>Views/Auth/register.php">Registrarse</a>
 <?php endif; ?>
 </div></div></div></nav>
