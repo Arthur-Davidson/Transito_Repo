@@ -58,6 +58,21 @@ class Auth
         header('Cache-Control: no-store');
     }
 
+    public static function esAdmin()
+    {
+        self::iniciar();
+        return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'Administrador';
+    }
+
+    public static function requerirAdmin()
+    {
+        self::requerirSesion();
+        if (!self::esAdmin()) {
+            header('Location: ' . BASE_URL . 'Views/Auth/dashboard.php');
+            exit;
+        }
+    }
+
     public static function soloInvitados()
     {
         if (self::autenticado()) {

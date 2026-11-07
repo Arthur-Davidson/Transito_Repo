@@ -1,5 +1,4 @@
 <?php
-
 require_once __DIR__ . '/../../Config/auth.php';
 require_once __DIR__ . '/../../Models/authentication.php';
 
@@ -29,6 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $modelo = new Autenticacion();
 
+                // Registra directamente con rol 'Administrador'
                 if ($modelo->registrar(
                     $nombre,
                     $correo,
@@ -75,9 +75,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="card auth-card">
                 <div class="card-body p-4 p-lg-5">
 
-                    <h1 class="h3 fw-bold">Crear cuenta</h1>
+                    <h1 class="h3 fw-bold">Registro</h1>
                     <p class="text-secondary mb-4">
-                        Completa tus datos para registrarte.
+                        Crea tu cuenta
                     </p>
 
                     <?php if ($error !== ''): ?>

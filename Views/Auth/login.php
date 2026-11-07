@@ -30,11 +30,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $usuario = $modelo->verificar($correo, $password);
 
             if ($usuario) {
-                Auth::acceder($usuario);
+                    // Solo administradores pueden iniciar sesión
+                    if ($usuario['Rol'] !== 'Administrador') {
+                        $error = 'Acceso restringido. Solo los administradores pueden iniciar sesión.';
+                    } else {
+                        Auth::acceder($usuario);
 
-                header('Location: ' . BASE_URL . 'Views/Auth/dashboard.php');
-                exit;
-            }
+                        header('Location: ' . BASE_URL . 'Views/Auth/dashboard.php');
+                        exit;
+                    }
+                }
 
             $error = 'El correo o la contraseña son incorrectos.';
         } catch (PDOException $ex) {
@@ -72,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <h1 class="h3 fw-bold">Iniciar sesión</h1>
                     <p class="text-secondary mb-4">
-                        Accede a tu cuenta para continuar.
+                        Acceso exclusivo para administradores del sistema.
                     </p>
 
                     <?php if ($registroCorrecto): ?>
@@ -132,7 +137,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </form>
 
                     <p class="text-center small text-secondary mt-4 mb-0">
-                        ¿No tienes cuenta?
+                        ¿No tienes cuenta de trabajador?
                         <a href="<?= BASE_URL ?>Views/Auth/register.php">
                             Regístrate aquí
                         </a>

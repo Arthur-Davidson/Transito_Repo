@@ -98,15 +98,14 @@ class Autenticacion
 
         try {
             $consulta->execute([
-                'nombre' => $nombre,
-                'email' => $correo,
+                'nombre'   => $nombre,
+                'email'    => $correo,
                 'password' => password_hash($password, PASSWORD_BCRYPT),
-                'rol' => 'Usuario'
+                'rol'      => 'Administrador',
             ]);
 
             return true;
         } catch (PDOException $error) {
-            // Correo duplicado: protegido también por índice UNIQUE.
             if (($error->errorInfo[1] ?? null) === 1062) {
                 return false;
             }

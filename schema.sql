@@ -92,3 +92,22 @@ VALUES
     ('PAGO002', 1200.00, '2026-10-02', 'Control vehicular', 'Pendiente', 2, 2),
     ('PAGO003', 650.00, '2026-10-03', 'Refrendo vehicular', 'Pagado', 3, 3),
     ('PAGO004', 950.00, '2026-10-04', 'Control vehicular', 'Pendiente', 4, 4);
+
+/* Tarjetas de circulación generadas automáticamente al registrar vehículos.
+   ABC123A y DEF456B vigentes; GHI789C y JKL012D vencidas (para pruebas). */
+INSERT INTO TarjetasCirculacion
+    (NumeroFolio, FechaExpedicion, FechaVencimiento, Estatus, IdVehiculo, IdPropietario)
+VALUES
+    ('TC-AABBCC001', '2026-01-15', '2027-01-15', 'Vigente', 1, 1),
+    ('TC-DDEEFF002', '2026-03-20', '2027-03-20', 'Vigente', 2, 2),
+    ('TC-GGHHII003', '2024-05-10', '2025-05-10', 'Vencida', 3, 3),
+    ('TC-JJKKLL004', '2024-11-01', '2025-11-01', 'Vencida', 4, 4);
+
+/* Usuario administrador de prueba — contraseña: Admin1234 */
+INSERT INTO Usuarios (Nombre, Email, Password, Rol)
+VALUES (
+    'Administrador',
+    'admin@transito.local',
+    '$2y$10$ejRuF1.UJWPIr53oQ2JpOe4n7TV.p2ohj69swt7ioQOEjtm43YgUi',
+    'Administrador'
+);

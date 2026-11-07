@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/../Config/database.php';
+require_once __DIR__ . '/card.php';
 
 class Vehiculo
 {
@@ -30,6 +31,10 @@ class Vehiculo
         )->fetchAll();
     }
 
+    /**
+     * Registra un vehículo y genera automáticamente su tarjeta de circulación
+     * con vigencia de un año a partir de hoy.
+     */
     public function crear(array $datos)
     {
         $consulta = $this->db->prepare(
@@ -40,5 +45,10 @@ class Vehiculo
         );
 
         $consulta->execute($datos);
+
+        $idVehiculo = (int) $this->db->lastInsertId();
+
+        // Generar tarjeta de circulación automáticamente
+        (new TarjetaCirculacion())->crearParaVehiculo($idVehiculo);
     }
 }

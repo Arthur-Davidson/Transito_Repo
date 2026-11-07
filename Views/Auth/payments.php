@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../Config/auth.php';
 require_once __DIR__ . '/../../Models/payment.php';
-Auth::requerirSesion();
+Auth::requerirAdmin();
 
 $error = '';
 $datos = [
