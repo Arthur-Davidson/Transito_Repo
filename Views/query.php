@@ -1,3 +1,4 @@
+
 <?php
 require_once __DIR__ . '/../Config/auth.php';
 Auth::iniciar();
@@ -44,14 +45,32 @@ include __DIR__ . '/header.php';
 <main class="container py-5">
     <div class="row justify-content-center"><div class="col-12 col-lg-8">
         <section class="card auth-card"><div class="card-body">
-            <h1>Consulta vehicular</h1>
-            <p>Consulta la información pública de un vehículo por matrícula.</p>
-            <form method="get" class="consulta-form">
-                <div><label class="form-label" for="matricula">Matrícula</label><input class="form-control" id="matricula" name="matricula" maxlength="20" value="<?= escapar($matricula) ?>" required></div>
-                <button class="btn btn-primary" type="submit">Consultar</button>
-            </form>
+
+            <div class="row align-items-center">
+                <div class="col-md-7">
+                    <h1>Consulta vehicular</h1>
+                    <p>Consulta la información pública de un vehículo por matrícula.</p>
+
+                    <form method="get" class="consulta-form">
+                        <div>
+                            <label class="form-label" for="matricula">Matrícula</label>
+                            <input class="form-control" id="matricula" name="matricula" maxlength="20" value="<?= escapar($matricula) ?>" required>
+                        </div>
+                        <button class="btn btn-primary" type="submit">Consultar</button>
+                    </form>
+                </div>
+
+                <div class="col-md-5 text-center mt-4 mt-md-0">
+                    <img src="<?= BASE_URL ?>Img/img_02.png"
+                         alt="Consulta vehicular"
+                         class="img-fluid"
+                         style="max-height: 180px;">
+                </div>
+            </div>
+
             <?php if ($error !== ''): ?><div class="alert alert-danger mt-4" role="alert"><?= escapar($error) ?></div><?php endif; ?>
             <?php if ($consultado && $error === '' && !$vehiculo): ?><div class="alert alert-secondary mt-4" role="status">No se encontró un vehículo con esa matrícula.</div><?php endif; ?>
+
             <?php if ($vehiculo): ?>
                 <div class="resultado-consulta mt-4">
                     <h2 class="h4">Resultado</h2>
@@ -66,6 +85,7 @@ include __DIR__ . '/header.php';
                     </dl>
                 </div>
             <?php endif; ?>
+
         </div></section>
     </div></div>
 </main>
