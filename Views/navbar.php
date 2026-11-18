@@ -20,7 +20,7 @@ function enlaceMenu($archivo, $texto, $privado = false) {
             <div class="navbar-nav me-auto">
                 <?php enlaceMenu('home.php', 'Inicio');
                 enlaceMenu('consulta_tarjeta.php', 'Consultar tarjeta');
-                enlaceMenu('query.php', 'Consultar vehículo');
+                enlaceMenu('query.php', 'Consultar Adeudos');
                 enlaceMenu('contact.php', 'Contacto'); ?>
                 <?php if (Auth::autenticado()): ?>
                     <?php enlaceMenu('dashboard.php', 'Panel', true); ?>

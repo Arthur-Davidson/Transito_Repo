@@ -10,7 +10,9 @@
             <h2 class="pie-titulo">Contacto</h2>
             <p>
                 Para recibir atención, comunícate con la
-                administración del sistema.
+                administración del sistema. <br> <br>
+                Teléfono: (656) 123 4567 <br>
+                Correo electrónico: contacto@controlvehicular.com <br>
             </p>
 
             <!-- Agregar aquí el los datos del proyecto. -->
