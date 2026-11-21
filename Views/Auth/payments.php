@@ -78,26 +78,59 @@ include __DIR__ . '/../header.php';
     <p>Registra pagos y consulta su estado.</p>
     <?php if ($exito !== ''): ?><div class="alert alert-success" role="status"><?= escapar($exito) ?></div><?php endif; ?>
     <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= escapar($error) ?></div><?php endif; ?>
-    <section class="card auth-card mb-4"><div class="card-body">
-        <h2 class="h4">Registrar pago</h2>
-        <?php if (!$vehiculos): ?><p class="aviso">Registra primero un vehículo.</p><a class="btn btn-primary" href="<?= BASE_URL ?>Views/Auth/vehicles.php">Ir a vehículos</a><?php else: ?>
-        <form method="post" class="form-grid">
-            <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
-            <div><label class="form-label" for="folio">Folio de pago</label><input class="form-control" id="folio" name="folio" maxlength="30" value="<?= escapar($datos['folio']) ?>" required></div>
-            <div><label class="form-label" for="monto">Monto</label><input class="form-control" id="monto" name="monto" type="number" min="0.01" max="99999999.99" step="0.01" value="<?= escapar($datos['monto']) ?>" required></div>
-            <div><label class="form-label" for="fecha">Fecha de pago</label><input class="form-control" id="fecha" name="fecha" type="date" value="<?= escapar($datos['fecha']) ?>" required></div>
-            <div><label class="form-label" for="estatus">Estado</label><select class="form-control" id="estatus" name="estatus"><option value="Pendiente" <?= $datos['estatus'] === 'Pendiente' ? 'selected' : '' ?>>Pendiente</option><option value="Pagado" <?= $datos['estatus'] === 'Pagado' ? 'selected' : '' ?>>Pagado</option></select></div>
-            <div class="form-grid-full"><label class="form-label" for="concepto">Concepto</label><input class="form-control" id="concepto" name="concepto" maxlength="100" value="<?= escapar($datos['concepto']) ?>" required></div>
-            <div class="form-grid-full"><label class="form-label" for="vehiculo">Vehículo</label><select class="form-control" id="vehiculo" name="vehiculo" required><option value="">Selecciona un vehículo</option><?php foreach ($vehiculos as $vehiculo): ?><option value="<?= (int) $vehiculo['IdVehiculo'] ?>" <?= $datos['vehiculo'] === (string) $vehiculo['IdVehiculo'] ? 'selected' : '' ?>><?= escapar($vehiculo['Matricula'] . ' — ' . $vehiculo['Marca'] . ' ' . $vehiculo['Modelo']) ?></option><?php endforeach; ?></select></div>
-            <div class="form-grid-full"><button class="btn btn-primary" type="submit">Guardar pago</button></div>
-        </form><?php endif; ?>
-    </div></section>
-    <section class="card auth-card"><div class="card-body">
-        <h2 class="h4">Pagos registrados</h2>
-        <div class="table-responsive"><table class="table"><thead><tr><th>Folio</th><th>Fecha</th><th>Concepto</th><th>Monto</th><th>Matrícula</th><th>Estado</th></tr></thead><tbody>
-        <?php foreach ($pagos as $pago): ?><tr><td><?= escapar($pago['FolioPago']) ?></td><td><?= escapar($pago['FechaPago']) ?></td><td><?= escapar($pago['Concepto']) ?></td><td>$<?= number_format((float) $pago['Monto'], 2) ?></td><td><?= escapar($pago['Matricula']) ?></td><td><?= escapar($pago['Estatus']) ?></td></tr><?php endforeach; ?>
-        <?php if (!$pagos): ?><tr><td colspan="6">Aún no hay pagos registrados.</td></tr><?php endif; ?>
-        </tbody></table></div>
-    </div></section>
+            <section class="card auth-card mb-4" style="position: relative; overflow: hidden;">
+                <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?= BASE_URL ?>Img/img_pagos.png'); background-repeat: no-repeat; background-position: center center; background-size: contain; opacity: 0.35; pointer-events: none; z-index: 0;"></div>
+                <div class="card-body" style="position: relative; z-index: 1;">
+                    <h2 class="h4">Registrar pago</h2>
+                    <?php if (!$vehiculos): ?><p class="aviso">Registra primero un vehículo.</p><a class="btn btn-primary" href="<?= BASE_URL ?>Views/Auth/vehicles.php">Ir a vehículos</a><?php else: ?>
+                        <form method="post" class="form-grid">
+                            <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
+                            <div><label class="form-label" for="folio">Folio de pago</label><input class="form-control" id="folio" name="folio" maxlength="30" value="<?= escapar($datos['folio']) ?>" required></div>
+                            <div><label class="form-label" for="monto">Monto</label><input class="form-control" id="monto" name="monto" type="number" min="0.01" max="99999999.99" step="0.01" value="<?= escapar($datos['monto']) ?>" required></div>
+                            <div><label class="form-label" for="fecha">Fecha de pago</label><input class="form-control" id="fecha" name="fecha" type="date" value="<?= escapar($datos['fecha']) ?>" required></div>
+                            <div><label class="form-label" for="estatus">Estado</label><select class="form-control" id="estatus" name="estatus">
+                                    <option value="Pendiente" <?= $datos['estatus'] === 'Pendiente' ? 'selected' : '' ?>>Pendiente</option>
+                                    <option value="Pagado" <?= $datos['estatus'] === 'Pagado' ? 'selected' : '' ?>>Pagado</option>
+                                </select></div>
+                            <div class="form-grid-full"><label class="form-label" for="concepto">Concepto</label><input class="form-control" id="concepto" name="concepto" maxlength="100" value="<?= escapar($datos['concepto']) ?>" required></div>
+                            <div class="form-grid-full"><label class="form-label" for="vehiculo">Vehículo</label><select class="form-control" id="vehiculo" name="vehiculo" required>
+                                    <option value="">Selecciona un vehículo</option><?php foreach ($vehiculos as $vehiculo): ?><option value="<?= (int) $vehiculo['IdVehiculo'] ?>" <?= $datos['vehiculo'] === (string) $vehiculo['IdVehiculo'] ? 'selected' : '' ?>><?= escapar($vehiculo['Matricula'] . ' — ' . $vehiculo['Marca'] . ' ' . $vehiculo['Modelo']) ?></option><?php endforeach; ?>
+                                </select></div>
+                            <div class="form-grid-full"><button class="btn btn-primary" type="submit">Guardar pago</button></div>
+                        </form><?php endif; ?>
+                </div>
+            </section>
+            <section class="card auth-card">
+                <div class="card-body">
+                    <h2 class="h4">Pagos registrados</h2>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Folio</th>
+                                    <th>Fecha</th>
+                                    <th>Concepto</th>
+                                    <th>Monto</th>
+                                    <th>Matrícula</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pagos as $pago): ?><tr>
+                                        <td><?= escapar($pago['FolioPago']) ?></td>
+                                        <td><?= escapar($pago['FechaPago']) ?></td>
+                                        <td><?= escapar($pago['Concepto']) ?></td>
+                                        <td>$<?= number_format((float) $pago['Monto'], 2) ?></td>
+                                        <td><?= escapar($pago['Matricula']) ?></td>
+                                        <td><?= escapar($pago['Estatus']) ?></td>
+                                    </tr><?php endforeach; ?>
+                                <?php if (!$pagos): ?><tr>
+                                        <td colspan="6">Aún no hay pagos registrados.</td>
+                                    </tr><?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 </main>
 <?php include __DIR__ . '/../footer.php'; ?>

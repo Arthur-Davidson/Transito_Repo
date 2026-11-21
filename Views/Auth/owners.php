@@ -64,34 +64,51 @@ include __DIR__ . '/../header.php';
     <?php if ($exito !== ''): ?><div class="alert alert-success" role="status"><?= escapar($exito) ?></div><?php endif; ?>
     <?php if ($error !== ''): ?><div class="alert alert-danger" role="alert"><?= escapar($error) ?></div><?php endif; ?>
 
-    <section class="card auth-card mb-4">
-        <div class="card-body">
-            <h2 class="h4">Registrar propietario</h2>
-            <form method="post" class="form-grid">
-                <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
-                <div><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" maxlength="100" value="<?= escapar($nombre) ?>" required></div>
-                <div><label class="form-label" for="apellido">Apellido</label><input class="form-control" id="apellido" name="apellido" maxlength="100" value="<?= escapar($apellido) ?>" required></div>
-                <div><label class="form-label" for="rfc">RFC</label><input class="form-control" id="rfc" name="rfc" maxlength="13" value="<?= escapar($rfc) ?>" required></div>
-                <div><label class="form-label" for="telefono">Teléfono</label><input class="form-control" id="telefono" name="telefono" maxlength="15" value="<?= escapar($telefono) ?>"></div>
-                <div class="form-grid-full"><label class="form-label" for="direccion">Dirección</label><input class="form-control" id="direccion" name="direccion" maxlength="255" value="<?= escapar($direccion) ?>"></div>
-                <div class="form-grid-full"><button class="btn btn-primary" type="submit">Guardar propietario</button></div>
-            </form>
-        </div>
-    </section>
+            <section class="card auth-card mb-4 card-propietarios" style="position: relative; overflow: hidden;">
+                <div class="card-propietarios-bg" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-image: url('<?= BASE_URL ?>Img/img_propietarios.png'); background-repeat: no-repeat; background-position: center center; background-size: contain; opacity: 0.35; pointer-events: none; z-index: 0;"></div>
+                <div class="card-body" style="position: relative; z-index: 1;">
+                    <h2 class="h4">Registrar propietario</h2>
+                    <form method="post" class="form-grid">
+                        <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
+                        <div><label class="form-label" for="nombre">Nombre</label><input class="form-control" id="nombre" name="nombre" maxlength="100" value="<?= escapar($nombre) ?>" required></div>
+                        <div><label class="form-label" for="apellido">Apellido</label><input class="form-control" id="apellido" name="apellido" maxlength="100" value="<?= escapar($apellido) ?>" required></div>
+                        <div><label class="form-label" for="rfc">RFC</label><input class="form-control" id="rfc" name="rfc" maxlength="13" value="<?= escapar($rfc) ?>" required></div>
+                        <div><label class="form-label" for="telefono">Teléfono</label><input class="form-control" id="telefono" name="telefono" maxlength="15" value="<?= escapar($telefono) ?>"></div>
+                        <div class="form-grid-full"><label class="form-label" for="direccion">Dirección</label><input class="form-control" id="direccion" name="direccion" maxlength="255" value="<?= escapar($direccion) ?>"></div>
+                        <div class="form-grid-full"><button class="btn btn-primary" type="submit">Guardar propietario</button></div>
+                    </form>
+                </div>
+            </section>
 
-    <section class="card auth-card">
-        <div class="card-body">
-            <h2 class="h4">Propietarios registrados</h2>
-            <div class="table-responsive"><table class="table">
-                <thead><tr><th>Nombre</th><th>RFC</th><th>Teléfono</th><th>Dirección</th></tr></thead>
-                <tbody>
-                <?php foreach ($propietarios as $propietario): ?>
-                    <tr><td><?= escapar($propietario['Nombre'] . ' ' . $propietario['Apellido']) ?></td><td><?= escapar($propietario['RFC']) ?></td><td><?= escapar($propietario['Telefono'] ?? '') ?></td><td><?= escapar($propietario['Direccion'] ?? '') ?></td></tr>
-                <?php endforeach; ?>
-                <?php if (!$propietarios): ?><tr><td colspan="4">Aún no hay propietarios registrados.</td></tr><?php endif; ?>
-                </tbody>
-            </table></div>
-        </div>
-    </section>
+            <section class="card auth-card">
+                <div class="card-body">
+                    <h2 class="h4">Propietarios registrados</h2>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>RFC</th>
+                                    <th>Teléfono</th>
+                                    <th>Dirección</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($propietarios as $propietario): ?>
+                                    <tr>
+                                        <td><?= escapar($propietario['Nombre'] . ' ' . $propietario['Apellido']) ?></td>
+                                        <td><?= escapar($propietario['RFC']) ?></td>
+                                        <td><?= escapar($propietario['Telefono'] ?? '') ?></td>
+                                        <td><?= escapar($propietario['Direccion'] ?? '') ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                <?php if (!$propietarios): ?><tr>
+                                        <td colspan="4">Aún no hay propietarios registrados.</td>
+                                    </tr><?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 </main>
 <?php include __DIR__ . '/../footer.php'; ?>

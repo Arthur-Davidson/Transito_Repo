@@ -95,72 +95,108 @@ include __DIR__ . '/../header.php';
     <?php endif; ?>
 
     <!-- Formulario de búsqueda -->
-    <section class="card auth-card mb-4"><div class="card-body">
-        <h2 class="h4">Consultar tarjeta por matrícula</h2>
-        <form method="get" class="consulta-form">
-            <div>
-                <label class="form-label" for="matricula">Matrícula del vehículo</label>
-                <input class="form-control" id="matricula" name="matricula"
-                       maxlength="20" value="<?= escapar($matriculaBuscada) ?>"
-                       placeholder="Ej. ABC123A" required>
-            </div>
-            <button class="btn btn-primary" type="submit">Consultar</button>
-        </form>
-    </div></section>
+    <section class="card auth-card mb-4">
+        <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h2 class="h4">Consultar tarjeta por matrícula</h2>
+                            <p class="text-secondary">Busca una matrícula para consultar la tarjeta de circulación del vehículo.</p>
+
+                            <form method="get" class="consulta-form">
+                                <div>
+                                    <label class="form-label" for="matricula">Matrícula del vehículo</label>
+                                    <input class="form-control" id="matricula" name="matricula"
+                                        maxlength="20" value="<?= escapar($matriculaBuscada) ?>"
+                                        placeholder="Ej. ABC123A" required>
+                                </div>
+                                <button class="btn btn-primary" type="submit">Consultar</button>
+                            </form>
+                        </div>
+
+                            <div class="col-md-5 text-center mt-4 mt-md-0">
+                                <img src="<?= BASE_URL ?>Img/img_tarjeta_auth.png" alt="Tarjeta Administrador" class="img-fluid" style="max-height: 180px;">
+                            </div>
+                        </div>
+                    </div>
+    </section>
 
     <!-- Resultado -->
     <?php if ($tarjeta): ?>
-    <?php
+        <?php
         $hoy      = new DateTime();
         $vence    = DateTime::createFromFormat('Y-m-d', $tarjeta['FechaVencimiento']);
         $vencida  = $tarjeta['Estatus'] === 'Vencida' || ($vence && $vence < $hoy);
         $badgeClase = $vencida ? 'badge-vencida' : 'badge-vigente';
         $badgeTexto = $vencida ? 'Vencida' : 'Vigente';
-    ?>
-    <section class="card auth-card tarjeta-resultado">
-        <div class="card-body">
-            <div class="tarjeta-header">
-                <div>
-                    <h2 class="h4 mb-0">Tarjeta de Circulación</h2>
-                    <span class="folio-num"><?= escapar($tarjeta['NumeroFolio']) ?></span>
+        ?>
+        <section class="card auth-card tarjeta-resultado">
+            <div class="card-body">
+                <div class="tarjeta-header">
+                    <div>
+                        <h2 class="h4 mb-0">Tarjeta de Circulación</h2>
+                        <span class="folio-num"><?= escapar($tarjeta['NumeroFolio']) ?></span>
+                    </div>
+                    <span class="badge-estatus <?= $badgeClase ?>"><?= $badgeTexto ?></span>
                 </div>
-                <span class="badge-estatus <?= $badgeClase ?>"><?= $badgeTexto ?></span>
-            </div>
 
-            <dl class="datos-consulta mt-4">
-                <div><dt>Matrícula</dt><dd><?= escapar($tarjeta['Matricula']) ?></dd></div>
-                <div><dt>Vehículo</dt><dd><?= escapar($tarjeta['Marca'] . ' ' . $tarjeta['Modelo']) ?></dd></div>
-                <div><dt>Año</dt><dd><?= (int) $tarjeta['Anio'] ?></dd></div>
-                <div><dt>Color</dt><dd><?= escapar($tarjeta['Color'] ?? 'No especificado') ?></dd></div>
-                <div><dt>Propietario</dt><dd><?= escapar($tarjeta['Nombre'] . ' ' . $tarjeta['Apellido']) ?></dd></div>
-                <div><dt>RFC</dt><dd><?= escapar($tarjeta['RFC']) ?></dd></div>
-                <div><dt>Fecha de expedición</dt><dd><?= escapar($tarjeta['FechaExpedicion']) ?></dd></div>
-                <div><dt>Fecha de vencimiento</dt><dd><?= escapar($tarjeta['FechaVencimiento']) ?></dd></div>
-            </dl>
+                <dl class="datos-consulta mt-4">
+                    <div>
+                        <dt>Matrícula</dt>
+                        <dd><?= escapar($tarjeta['Matricula']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Vehículo</dt>
+                        <dd><?= escapar($tarjeta['Marca'] . ' ' . $tarjeta['Modelo']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Año</dt>
+                        <dd><?= (int) $tarjeta['Anio'] ?></dd>
+                    </div>
+                    <div>
+                        <dt>Color</dt>
+                        <dd><?= escapar($tarjeta['Color'] ?? 'No especificado') ?></dd>
+                    </div>
+                    <div>
+                        <dt>Propietario</dt>
+                        <dd><?= escapar($tarjeta['Nombre'] . ' ' . $tarjeta['Apellido']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>RFC</dt>
+                        <dd><?= escapar($tarjeta['RFC']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Fecha de expedición</dt>
+                        <dd><?= escapar($tarjeta['FechaExpedicion']) ?></dd>
+                    </div>
+                    <div>
+                        <dt>Fecha de vencimiento</dt>
+                        <dd><?= escapar($tarjeta['FechaVencimiento']) ?></dd>
+                    </div>
+                </dl>
 
-            <?php if ($vencida && Auth::esAdmin()): ?>
-            <div class="renovar-box mt-4">
-                <p class="aviso">
-                    ⚠️ Esta tarjeta está <strong>vencida</strong>. Como administrador puedes renovarla
-                    registrando el pago de placas correspondiente.
-                </p>
-                <form method="post">
-                    <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
-                    <input type="hidden" name="accion" value="renovar">
-                    <input type="hidden" name="id_tarjeta" value="<?= (int) $tarjeta['IdTarjeta'] ?>">
-                    <input type="hidden" name="matricula_busqueda" value="<?= escapar($tarjeta['Matricula']) ?>">
-                    <button class="btn btn-warning" type="submit">
-                        💳 Renovar pago de placas y tarjeta
-                    </button>
-                </form>
+                <?php if ($vencida && Auth::esAdmin()): ?>
+                    <div class="renovar-box mt-4">
+                        <p class="aviso">
+                            ⚠️ Esta tarjeta está <strong>vencida</strong>. Como administrador puedes renovarla
+                            registrando el pago de placas correspondiente.
+                        </p>
+                        <form method="post">
+                            <input type="hidden" name="csrf" value="<?= escapar(Auth::token()) ?>">
+                            <input type="hidden" name="accion" value="renovar">
+                            <input type="hidden" name="id_tarjeta" value="<?= (int) $tarjeta['IdTarjeta'] ?>">
+                            <input type="hidden" name="matricula_busqueda" value="<?= escapar($tarjeta['Matricula']) ?>">
+                            <button class="btn btn-warning" type="submit">
+                                💳 Renovar pago de placas y tarjeta
+                            </button>
+                        </form>
+                    </div>
+                <?php elseif ($vencida && !Auth::esAdmin()): ?>
+                    <p class="aviso mt-4">
+                        ⚠️ Esta tarjeta está <strong>vencida</strong>. Contacta a un administrador para renovarla.
+                    </p>
+                <?php endif; ?>
             </div>
-            <?php elseif ($vencida && !Auth::esAdmin()): ?>
-            <p class="aviso mt-4">
-                ⚠️ Esta tarjeta está <strong>vencida</strong>. Contacta a un administrador para renovarla.
-            </p>
-            <?php endif; ?>
-        </div>
-    </section>
+        </section>
     <?php elseif ($consultado && $error === ''): ?>
         <div class="alert alert-secondary" role="status">
             No se encontró ninguna tarjeta de circulación para la matrícula
@@ -169,4 +205,3 @@ include __DIR__ . '/../header.php';
     <?php endif; ?>
 </main>
 <?php include __DIR__ . '/../footer.php'; ?>
-
